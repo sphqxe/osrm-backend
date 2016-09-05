@@ -78,7 +78,8 @@ class OSRMDirectLoader extends OSRMBaseLoader {
 
         this.child = this.scope.runBin('osrm-routed', util.format("%s -p %d", this.inputFile, this.scope.OSRM_PORT), this.scope.environment, (err) => {
           if (err) {
-              throw new Error(util.format('osrm-routed exited with code %d', err.code));
+              let reason = err.killed ? util.format('killed by %s', err.signal) : util.format('exited with code %d', err.code);
+              throw new Error(util.format('osrm-routed %s: %s', reason, err.cmd));
           }
         });
         callback();
@@ -111,9 +112,10 @@ class OSRMDatastoreLoader extends OSRMBaseLoader {
         if (this.osrmIsRunning()) return callback();
 
         this.child = this.scope.runBin('osrm-routed', util.format('--shared-memory=1 -p %d', this.scope.OSRM_PORT), this.scope.environment, (err) => {
-          if (err) {
-              throw new Error(util.format('osrm-routed exited with code %d: %s', err.code, err));
-          }
+            if (err) {
+                let reason = err.killed ? util.format('killed by %s', err.signal) : util.format('exited with code %d', err.code);
+                throw new Error(util.format('osrm-routed %s: %s', reason, err.cmd));
+            }
         });
 
         // we call the callback here, becuase we don't want to wait for the child process to finish
