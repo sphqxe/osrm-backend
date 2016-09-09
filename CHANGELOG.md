@@ -1,3 +1,8 @@
+# 5.5.0
+  Changes from 5.4.0
+    - Profiles
+      - `restrictions` is now used for namespaced restrictions and restriction exceptions (e.g. `restriction:motorcar=` as well as `except=motorcar`)
+
 # 5.4.0
   Changes from 5.3.0
     - Profiles
