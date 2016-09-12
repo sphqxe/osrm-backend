@@ -81,6 +81,24 @@ inline EdgeWeight distanceAndSpeedToWeight(double distance_in_meters, double spe
     return std::max<EdgeWeight>(1, static_cast<EdgeWeight>(std::round(duration * 10)));
 }
 
+template <class IterType> EdgeWeight getNewWeight(IterType new_speed_iter, const double segment_length, EdgeWeight oldWeight)
+{
+    auto new_segment_weight =
+        (new_speed_iter->speed_source.speed > 0)
+            ? distanceAndSpeedToWeight(segment_length,
+                                       new_speed_iter->speed_source.speed)
+            : INVALID_EDGE_WEIGHT;
+    if ((new_segment_weight < oldWeight) && ((oldWeight / new_segment_weight) > 2.5))
+    {
+        auto newSecs = new_segment_weight / 10;
+        auto oldSecs = oldWeight / 10;
+        util::SimpleLogger().Write(logWARNING) << "Segment " << new_speed_iter->segment.from << "," << new_speed_iter->segment.to
+                                               << " is updating from " << oldSecs << " seconds to " << newSecs << " based on " << new_speed_iter->speed_source.source;
+    }
+
+    return new_segment_weight;
+}
+
 int Contractor::Run()
 {
 #ifdef WIN32
@@ -582,13 +600,10 @@ EdgeID Contractor::LoadEdgeExpandedGraph(
 
                     auto forward_speed_iter =
                         find(segment_speed_lookup, Segment{u->node_id, v->node_id});
+
                     if (forward_speed_iter != segment_speed_lookup.end())
                     {
-                        auto new_segment_weight =
-                            (forward_speed_iter->speed_source.speed > 0)
-                                ? distanceAndSpeedToWeight(segment_length,
-                                                           forward_speed_iter->speed_source.speed)
-                                : INVALID_EDGE_WEIGHT;
+                        auto new_segment_weight = getNewWeight(forward_speed_iter, segment_length, m_geometry_list[forward_begin + leaf_object.fwd_segment_position].weight);
                         m_geometry_list[forward_begin + leaf_object.fwd_segment_position].weight =
                             new_segment_weight;
                         m_geometry_datasource[forward_begin + leaf_object.fwd_segment_position] =
