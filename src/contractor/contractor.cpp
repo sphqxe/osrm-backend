@@ -83,7 +83,10 @@ inline EdgeWeight distanceAndSpeedToWeight(double distance_in_meters, double spe
 
 // Returns updated edge weight
 template <class IterType>
-EdgeWeight getNewWeight(IterType new_speed_iter, const double segment_length, EdgeWeight oldWeight)
+EdgeWeight getNewWeight(IterType new_speed_iter,
+                        const double segment_length,
+                        const std::vector<std::string> &segment_speed_filenames,
+                        EdgeWeight oldWeight)
 {
     auto new_segment_weight =
         (new_speed_iter->speed_source.speed > 0)
@@ -95,10 +98,11 @@ EdgeWeight getNewWeight(IterType new_speed_iter, const double segment_length, Ed
     {
         auto newSecs = new_segment_weight / 10;
         auto oldSecs = oldWeight / 10;
+        auto speed_file = segment_speed_filenames.at(new_speed_iter->speed_source.source - 1);
         util::SimpleLogger().Write(logWARNING)
             << "Segment " << new_speed_iter->segment.from << "," << new_speed_iter->segment.to
             << " is updating from " << oldSecs << " seconds to " << newSecs << " based on "
-            << new_speed_iter->speed_source.source;
+            << speed_file;
     }
 
     return new_segment_weight;
@@ -611,6 +615,7 @@ EdgeID Contractor::LoadEdgeExpandedGraph(
                         auto new_segment_weight = getNewWeight(
                             forward_speed_iter,
                             segment_length,
+                            segment_speed_filenames,
                             m_geometry_list[forward_begin + leaf_object.fwd_segment_position]
                                 .weight);
                         m_geometry_list[forward_begin + leaf_object.fwd_segment_position].weight =
