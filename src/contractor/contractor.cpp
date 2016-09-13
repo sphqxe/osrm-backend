@@ -99,13 +99,14 @@ EdgeWeight getNewWeight(IterType new_speed_iter,
     {
         if ((new_segment_weight < oldWeight) && ((oldWeight / new_segment_weight) > verify_weights))
         {
-            auto newSecs = new_segment_weight / 10;
-            auto oldSecs = oldWeight / 10;
+            auto newSecs = new_segment_weight / 10.0;
+            auto oldSecs = oldWeight / 10.0;
             auto speed_file = segment_speed_filenames.at(new_speed_iter->speed_source.source - 1);
             util::SimpleLogger().Write(logWARNING)
-                << "[verify weights] Segment " << new_speed_iter->segment.from << ","
-                << new_speed_iter->segment.to << " is updating from " << oldSecs << " seconds to "
-                << newSecs << " based on " << speed_file;
+                << "[verify weights] Update from " << oldSecs << "s to " << newSecs
+                << "s on segment " << new_speed_iter->segment.from << ","
+                << new_speed_iter->segment.to << " based on " << speed_file
+                << ". Assigned new speed of " << new_speed_iter->speed_source.speed;
         }
     }
 
