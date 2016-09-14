@@ -27,7 +27,7 @@ return_code parseArguments(int argc, char *argv[], contractor::ContractorConfig 
 {
     // declare a group of options that will be allowed only on command line
     boost::program_options::options_description generic_options("Options");
-    generic_options.add_options()("version,v", "Show version")("help,h", "Show this help message");
+    generic_options.add_options()("version", "Show version")("help,h", "Show this help message");
 
     // declare a group of options that will be allowed on command line
     boost::program_options::options_description config_options("Configuration");
