@@ -142,11 +142,13 @@ maxspeed_table = {
 }
 
 -- set profile properties
-properties.u_turn_penalty                  = 20
-properties.traffic_signal_penalty          = 2
-properties.use_turn_restrictions           = true
-properties.continue_straight_at_waypoint   = true
-properties.left_hand_driving               = false
+properties.u_turn_penalty                 = 20
+properties.traffic_signal_penalty         = 2
+-- if we are crossing through traffic on a turn, we add this penalty
+properties.crossing_traffic_penalty       = 5
+properties.use_turn_restrictions          = true
+properties.continue_straight_at_waypoint  = true
+properties.left_hand_driving              = false
 
 local side_road_speed_multiplier = 0.8
 

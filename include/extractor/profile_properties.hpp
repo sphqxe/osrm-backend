@@ -30,8 +30,18 @@ struct ProfileProperties
         traffic_signal_penalty = boost::numeric_cast<int>(traffic_signal_penalty_ * 10.);
     }
 
+    double GetCrossingTrafficPenalty() const { return crossing_through_traffic_penalty / 10.; }
+
+    void SetCrossingTrafficPenalty(const double crossing_through_traffic_penalty_)
+    {
+        crossing_through_traffic_penalty = boost::numeric_cast<int>(crossing_through_traffic_penalty_ * 10.);
+    }
+
     //! penalty to cross a traffic light in deci-seconds
     int traffic_signal_penalty;
+    // if a turn crosses through traffic, this additional penalty (in deci-seconds) describes the
+    // expected average delay. At some point this should be integrated into the turn function
+    int crossing_through_traffic_penalty;
     //! penalty to do a uturn in deci-seconds
     int u_turn_penalty;
     bool continue_straight_at_waypoint;

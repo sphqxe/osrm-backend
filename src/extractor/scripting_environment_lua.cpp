@@ -127,6 +127,9 @@ void LuaScriptingEnvironment::InitContext(LuaScriptingContext &context)
              .property("traffic_signal_penalty",
                        &ProfileProperties::GetTrafficSignalPenalty,
                        &ProfileProperties::SetTrafficSignalPenalty)
+             .property("crossing_traffic_penalty",
+                       &ProfileProperties::GetCrossingTrafficPenalty,
+                       &ProfileProperties::SetCrossingTrafficPenalty)
              .property("u_turn_penalty",
                        &ProfileProperties::GetUturnPenalty,
                        &ProfileProperties::SetUturnPenalty)

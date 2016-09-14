@@ -1,5 +1,5 @@
-#include "extractor/edge_based_graph_factory.hpp"
 #include "extractor/edge_based_edge.hpp"
+#include "extractor/edge_based_graph_factory.hpp"
 #include "util/coordinate.hpp"
 #include "util/coordinate_calculation.hpp"
 #include "util/exception.hpp"
@@ -364,7 +364,8 @@ void EdgeBasedGraphFactory::GenerateEdgeExpandedEdges(
         progress.PrintStatus(node_u);
         for (const EdgeID edge_from_u : m_node_based_graph->GetAdjacentEdgeRange(node_u))
         {
-            if (m_node_based_graph->GetEdgeData(edge_from_u).reversed)
+            const auto &data_from_u = m_node_based_graph->GetEdgeData(edge_from_u);
+            if (data_from_u.reversed)
             {
                 continue;
             }
@@ -414,6 +415,8 @@ void EdgeBasedGraphFactory::GenerateEdgeExpandedEdges(
             }(turn_classification.second);
             bearing_class_by_node_based_node[node_v] = bearing_class_id;
 
+            bool crosses_through_traffic = false;
+
             for (const auto turn : possible_turns)
             {
                 // only add an edge if turn is not prohibited
@@ -441,6 +444,27 @@ void EdgeBasedGraphFactory::GenerateEdgeExpandedEdges(
                 }
 
                 distance += turn_penalty;
+
+                if (crosses_through_traffic)
+                    distance += profile_properties.crossing_through_traffic_penalty;
+
+                // a through street is an obvious turn on which we can expect traffic coming onto our direction
+                const auto isThrough = [&](const guidance::TurnOperation &turn) {
+                    if (!((turn.instruction.type == guidance::TurnType::Suppressed) ||
+                          (turn.instruction.type == guidance::TurnType::NewName) ||
+                          (turn.instruction.type == guidance::TurnType::Notification)))
+                        return false;
+                    auto eid = m_node_based_graph->FindEdge(m_node_based_graph->GetTarget(turn.eid),
+                                                            node_v);
+                    if (eid == SPECIAL_EDGEID)
+                        return false;
+                    return !m_node_based_graph->GetEdgeData(eid).reversed;
+                };
+
+                // if a turn is a through turn, all following turns are crossing through the
+                // opposite traffic
+                if (isThrough(turn))
+                    crosses_through_traffic = true;
 
                 BOOST_ASSERT(m_compressed_edge_container.HasEntryForID(edge_from_u));
                 original_edge_data_vector.emplace_back(
