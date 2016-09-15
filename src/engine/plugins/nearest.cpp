@@ -8,6 +8,7 @@
 #include <string>
 
 #include <boost/assert.hpp>
+#include <boost/numeric/conversion/cast.hpp>
 
 namespace osrm
 {
@@ -26,7 +27,7 @@ Status NearestPlugin::HandleRequest(const api::NearestParameters &params,
 {
     BOOST_ASSERT(params.IsValid());
 
-    if (params.number_of_results > max_results)
+    if (boost::numeric_cast<std::int64_t>(params.number_of_results) > max_results)
     {
         return Error("TooBig",
                      "Number of results " + std::to_string(params.number_of_results) +
